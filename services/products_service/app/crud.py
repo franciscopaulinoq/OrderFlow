@@ -24,11 +24,15 @@ def create_product(db: Session, product: schemas.ProductBase):
     db.refresh(db_product)
     return db_product
 
-def update_product(db: Session, product_id: str, product_update: schemas.ProductBase):
+def update_product(db: Session, product_id: str, product_update: schemas.ProductUpdate):
     db_product = get_product(db, product_id)
     if db_product:
-        db_product.name = product_update.name
-        db_product.price = product_update.price
+        update_data = product_update.model_dump(exclude_unset=True)
+
+        for key, value in update_data.items():
+            setattr(db_product, key, value)
+
+        db.add(db_product)
         db.commit()
         db.refresh(db_product)
     return db_product

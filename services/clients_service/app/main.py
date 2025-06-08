@@ -1,9 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-from app.database import Base, engine, get_db
-from . import models, schemas
+from app.api import api_router
+from app.database import Base, engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,19 +17,9 @@ app = FastAPI(
     description="API for managing clients.",
     version="0.0.1",
     lifespan=lifespan,
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
-@app.post("/clients", response_model=schemas.ClientOut)
-def create_client_endpoint(client: schemas.ClientCreate, db: Session = Depends(get_db)):
-    db_client = models.Client(
-        name=client.name, 
-        email=client.email
-    )
-    db.add(db_client)
-    db.commit()
-    db.refresh(db_client)
-    return db_client
-
-@app.get("/clients", response_model=list[schemas.ClientOut])
-def read_clients_endpoint(db: Session = Depends(get_db)):
-    return db.query(models.Client).all()
+app.include_router(api_router, prefix="/api")

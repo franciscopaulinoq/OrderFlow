@@ -23,10 +23,6 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to Product Service!"}
-
 app.include_router(api_router, prefix="/api")
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ class ClientCreate(BaseModel):
     email: str
 
 class ClientOut(BaseModel):
-    id: int
+    id: str
     name: str
     email: str
     created_at: datetime

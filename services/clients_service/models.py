@@ -1,11 +1,16 @@
-from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
+import uuid
+
+from sqlalchemy import Column, Integer, String, DateTime
 from database import Base
 
-class Cliente(Base):
-    __tablename__= "clientes"
+class Client(Base):
+    __tablename__= "clients"
 
-    id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String, index=True)
-    email = Column(String, index=True, unique=True)
-    created_at = Column(DateTime, default=datetime.now)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, index=True, nullable=False)
+    email = Column(String, index=True, unique=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
+
+    def __repr__(self):
+        return f"<Client(id='{self.id}', name='{self.name}', email={self.email})>"

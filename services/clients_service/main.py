@@ -21,15 +21,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-@app.post("/clientes", response_model=schemas.ClienteOut)
-def criar_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
-    db_cliente = models.Cliente(nome=cliente.nome, email=cliente.email)
+@app.post("/clients", response_model=schemas.ClientOut)
+def create_client_endpoint(client: schemas.ClientCreate, db: Session = Depends(get_db)):
+    db_cliente = models.Client(name=client.name, email=client.email)
     db.add(db_cliente)
     db.commit()
     db.refresh(db_cliente)
     return db_cliente
 
-@app.get("/clientes", response_model=list[schemas.ClienteOut])
-def listar_clientes(db: Session = Depends(get_db)):
-    return db.query(models.Cliente).all()
+@app.get("/clients", response_model=list[schemas.ClientOut])
+def read_clients_endpoint(db: Session = Depends(get_db)):
+    return db.query(models.Client).all()
 

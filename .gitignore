@@ -5,6 +5,8 @@ __pycache__/
 
 #databases
 *.db
+*.sqlite
+*.db-journal
 
 # C extensions
 *.so

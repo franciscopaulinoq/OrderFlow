@@ -1,41 +1,34 @@
-from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from . import crud, schemas
-from .database import Base, engine, get_db
+from app import crud, schemas
+from app.database import get_db
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Creating database tables...")
-    Base.metadata.create_all(bind=engine)
-    print("Database tables created/checked.")
-    yield
-    print("Shutting down Products Service.")
-
-
-app = FastAPI(
-    title="Products Service",
-    description="API for managing product catalog.",
-    version="0.0.1",
-    lifespan=lifespan
+router = APIRouter(
+    prefix="/products",
+    tags=["products"]
 )
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to Product Service!"}
-
-@app.post("/products/", response_model=schemas.Product, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.Product, status_code=status.HTTP_201_CREATED)
 def create_product_endpoint(product: schemas.ProductBase, db: Session = Depends(get_db)):
+    """
+    Cria um novo produto.
+    """
     return crud.create_product(db=db, product=product)
 
-@app.get("/products/", response_model=list[schemas.Product])
+@router.get("/", response_model=list[schemas.Product])
 def read_products_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Retorna uma lista de produtos.
+    """
     products = crud.get_products(db, skip=skip, limit=limit)
     return products
 
-@app.get("/products/{product_id}", response_model=schemas.Product)
+@router.get("/{product_id}", response_model=schemas.Product)
 def read_product_endpoint(product_id: str, db: Session = Depends(get_db)):
+    """
+    Retorna um produto específico pelo ID.
+    """
     db_product = crud.get_product(db, product_id=product_id)
     if db_product is None:
         raise HTTPException(
@@ -44,8 +37,11 @@ def read_product_endpoint(product_id: str, db: Session = Depends(get_db)):
         )
     return db_product
 
-@app.patch("/products/{product_id}", response_model=schemas.Product)
+@router.patch("/{product_id}", response_model=schemas.Product)
 def update_product_endpoint(product_id: str, product: schemas.ProductUpdate, db: Session = Depends(get_db)):
+    """
+    Atualiza um produto existente.
+    """
     db_product = crud.get_product(db, product_id=product_id)
     if db_product is None:
         raise HTTPException(
@@ -54,8 +50,11 @@ def update_product_endpoint(product_id: str, product: schemas.ProductUpdate, db:
         )
     return crud.update_product(db=db, product_id=product_id, product_update=product)
 
-@app.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product_endpoint(product_id: str, db: Session = Depends(get_db)):
+    """
+    Deleta um produto pelo ID.
+    """
     success = crud.delete_product(db, product_id=product_id)
     if not success:
         raise HTTPException(

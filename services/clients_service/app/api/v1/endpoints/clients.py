@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app import schemas
+from app import crud, schemas
 from app.database import get_db
-from app import models, schemas
 
 router = APIRouter(
     prefix="/clients",
@@ -15,18 +14,25 @@ def create_client_endpoint(client: schemas.ClientCreate, db: Session = Depends(g
     """
     Cria um novo cliente.
     """
-    db_client = models.Client(
-        name=client.name, 
-        email=client.email
-    )
-    db.add(db_client)
-    db.commit()
-    db.refresh(db_client)
-    return db_client
+    return crud.create_client(db=db, client=client)
 
 @router.get("/", response_model=list[schemas.ClientOut])
 def read_clients_endpoint(db: Session = Depends(get_db)):
     """
     Retorna uma lista de clientes.
     """
-    return db.query(models.Client).all()
+    clients = crud.get_clients(db)
+    return clients
+
+@router.get("/{client_id}", response_model=schemas.ClientOut)
+def read_client_endpoint(client_id, db: Session = Depends(get_db)):
+    """
+    Retorna um cliente específico pelo ID.
+    """
+    db_client = crud.get_client(db, client_id=client_id)
+    if db_client is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client not found"
+        )
+    return db_client

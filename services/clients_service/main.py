@@ -1,19 +1,25 @@
-from fastapi import FastAPI, Depends, HTTPException
+from contextlib import asynccontextmanager
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
+
+from database import Base, engine, get_db
 import models
 import schemas
 
-models.Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created/checked.")
+    yield
+    print("Shutting down Clients Service.")
 
-app = FastAPI()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+app = FastAPI(
+    title="Clients Service",
+    description="API for managing clients.",
+    version="0.0.1",
+    lifespan=lifespan,
+)
 
 @app.post("/clientes", response_model=schemas.ClienteOut)
 def criar_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):

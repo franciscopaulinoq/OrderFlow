@@ -10,11 +10,12 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     print("Database tables created/checked.")
     yield
-    print("Shutting down Clients Service.")
+    print("Shutting down Products Service.")
+
 
 app = FastAPI(
-    title="Clients Service",
-    description="API for managing clients.",
+    title="Products Service",
+    description="API for managing product catalog.",
     version="0.0.1",
     lifespan=lifespan,
     openapi_url="/openapi.json",
@@ -27,4 +28,4 @@ app.include_router(api_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
     
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

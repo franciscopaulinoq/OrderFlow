@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class ClienteCreate(BaseModel):
-    nome: str
+class ClientCreate(BaseModel):
+    name: str
     email: str
 
-class ClienteOut(BaseModel):
-    id: int
-    nome: str
+class ClientOut(BaseModel):
+    id: str
+    name: str
     email: str
     created_at: datetime
 

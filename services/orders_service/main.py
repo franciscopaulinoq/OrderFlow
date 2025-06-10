@@ -1,11 +1,27 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database import Base, engine
-from app.api.v1.endpoints import orders, product_orders
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+from app.database import Base, engine
+from app.api.v1.endpoints import orders, product_orders
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created/checked.")
+    yield
+    print("Shutting down Orders Service.")
+
+app = FastAPI(
+    title="Orders service",
+    description="API for managing Orders.",
+    version="0.0.1",
+    lifespan=lifespan,
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,5 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(orders.router)
-app.include_router(product_orders.router)
+app.include_router(orders.router, prefix="/api")
+app.include_router(product_orders.router, prefix="/api")
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    uvicorn.run("main:app", host="0.0.0.0", port=8002, reload=True)

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from .models import Order, ProductOrder
-from .schemas import OrderCreate, OrderOut, ProductOrderCreate, ProductOrderOut
+from .models import Order
+from .schemas import OrderCreate, OrderOut
 
 def get_order(
     db: Session,
@@ -9,7 +9,7 @@ def get_order(
 ):
     return db.query(Order).filter(
         Order.order_id == order_id
-    ).first
+    ).first()
 
 
 def get_orders(
@@ -19,14 +19,25 @@ def get_orders(
 
 def create_order(
     db: Session,
-    order_data: OrderCreate
+    order: OrderCreate,
+    total_value: float,
 ):
-    new_order = Order(
-        client_id=order_data.client_id,
-        total_value=order_data.total_value
+    db_order = Order(
+        client_id=order.client_id,
+        product_id=order.product_id,
+        quantity=order.quantity,
+        total_value=total_value
     )
 
-    db.add(new_order)
+    db.add(db_order)
     db.commit()
-    db.refresh(new_order)
-    return new_order
+    db.refresh(db_order)
+    return db_order
+
+def delete_order(db: Session, order_id: str):
+    db_order = get_order(db, order_id)
+    if db_order:
+        db.delete(db_order)
+        db.commit()
+        return True
+    return False

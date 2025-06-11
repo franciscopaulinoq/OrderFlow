@@ -1,16 +1,29 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Annotated
 
 from .models import OrderStatus
 
+class ClientInfo(BaseModel):
+    id: str
+    email: str
+
+class ProductInfo(BaseModel):
+    id: str
+    name: str
+    price: float
+
 class OrderCreate(BaseModel):
     client_id: str
+    product_id: str
+    quantity: Annotated[int, Field(strict=True, gt=0)]
 
 
 class OrderOut(BaseModel):
     order_id: str
-    client_id:str
+    client: ClientInfo
+    product: ProductInfo
+    quantity: int
     order_date: datetime
     total_value: float
     status: OrderStatus 
@@ -21,18 +34,14 @@ class OrderOut(BaseModel):
         from_attributes = True
 
 
-class ProductOrderCreate(BaseModel):
+class OrderDB(BaseModel):
     order_id: str
+    client_id: str
     product_id: str
     quantity: int
-    unit_price: float
-
-class ProductOrderOut(BaseModel):
-    product_order_id: str
-    order_id: str 
-    product_id: str
-    quantity: int
-    unit_price: float
+    order_date: datetime
+    total_value: float
+    status: OrderStatus
     created_at: datetime
     updated_at: Optional[datetime] = None
 

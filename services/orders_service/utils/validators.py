@@ -14,3 +14,10 @@ def get_product(product_id: str):
     if response.status_code != 200:
         raise HTTPException(status_code=404, detail="Product not found")
     return response.json()
+
+
+def get_client(client_id: str):
+    response = httpx.get(f"{CLIENT_API_URL}{client_id}")
+    if response.status_code != 200:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return response.json()

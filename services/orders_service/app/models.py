@@ -9,6 +9,7 @@ from sqlalchemy import(
     Integer,
 )
 from .database import Base  
+from sqlalchemy import CheckConstraint
 
 class OrderStatus(str, Enum):
     PENDING = "pending"
@@ -27,3 +28,7 @@ class Order(Base):
     status = Column(String, default=OrderStatus.PENDING.value, nullable=False)  
     created_at = Column(DateTime, default=datetime.datetime.now, nullable=False)
     updated_at = Column(DateTime, onupdate=datetime.datetime.now)
+
+    __table_args__ = (
+        CheckConstraint('quantity > 0', name='check_quantity_positive'),
+    )

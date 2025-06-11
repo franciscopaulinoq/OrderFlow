@@ -1,13 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Annotated
 
 from .models import OrderStatus
 
 class OrderCreate(BaseModel):
     client_id: str
     product_id: str
-    quantity: int
+    quantity: Annotated[int, Field(strict=True, gt=0)]
 
 
 class OrderOut(BaseModel):

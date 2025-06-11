@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas, database
+from utils.validators import validate_product
 
 router = APIRouter(prefix="/product-orders", tags=["ProductOrders"])
 
 @router.post("/", response_model=schemas.ProductOrderOut)
 def create_product_order(product_order: schemas.ProductOrderCreate, db: Session = Depends(database.get_db)):
+    validate_product(product_order.product_id)
+
     db_po = models.ProductOrder(**product_order.dict())
     db.add(db_po)
 

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.api.v1.endpoints import orders, product_orders
+from app.api import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,8 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(orders.router, prefix="/api")
-app.include_router(product_orders.router, prefix="/api")
+app.include_router(api_router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn

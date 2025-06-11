@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas, database
+from utils.validators import validate_client
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @router.post("/", response_model=schemas.OrderOut)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(database.get_db)):
+    validate_client(order.client_id)
+
     db_order = models.Order(**order.dict())
     db.add(db_order)
     db.commit()

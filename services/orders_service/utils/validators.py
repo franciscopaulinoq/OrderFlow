@@ -1,7 +1,7 @@
 import httpx
 from fastapi import HTTPException
 
-CLIENT_API_URL = "http://localhost:8001/api/v1/clients"
+CLIENT_API_URL = "http://localhost:8001/api/v1/clients/"
 PRODUCT_API_URL = "http://localhost:8000/api/v1/products/"
 
 def validate_client(client_id: str):

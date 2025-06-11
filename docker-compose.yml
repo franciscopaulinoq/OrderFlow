@@ -1,0 +1,35 @@
+services:
+  clients-service:
+    build: ./services/clients_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/clients_service:/app
+      - clients_db_data:/app/data/
+    environment:
+      PYTHONUNBUFFERED: 1
+
+  products-service:
+    build: ./services/products_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/products_service:/app
+      - products_db_data:/app/data/
+    environment:
+      PYTHONUNBUFFERED: 1
+
+  orders-service:
+    build: ./services/orders_service
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./services/orders_service:/app
+      - orders_db_data:/app/data/
+    environment:
+      PYTHONUNBUFFERED: 1
+
+volumes:
+  clients_db_data:
+  products_db_data:
+  orders_db_data:

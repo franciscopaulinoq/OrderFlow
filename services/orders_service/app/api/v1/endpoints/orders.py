@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas, database
-from utils.validators import validate_client
+from utils.validators import validate_client, get_product
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -9,7 +9,17 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 def create_order(order: schemas.OrderCreate, db: Session = Depends(database.get_db)):
     validate_client(order.client_id)
 
-    db_order = models.Order(**order.dict())
+    product_data = get_product(order.product_id)
+    unit_price = product_data["price"]
+
+    total_value = unit_price * order.quantity
+
+    db_order = models.Order(
+        client_id=order.client_id,
+        product_id=order.product_id,
+        quantity=order.quantity,
+        total_value=total_value
+    )
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
